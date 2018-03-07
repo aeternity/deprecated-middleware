@@ -19,13 +19,13 @@ services:
     env_file: .env
     environment:
       EPOCH_CONFIG: /home/epoch/epoch.yaml
-    command: -aehttp enable_debug_endpoints true # -aecore expected_mine_rate ${EPOCH_MINE_RATE:-15000}
+    command: -aecore expected_mine_rate ${EPOCH_MINE_RATE:-15000}
     volumes:
       - ${PWD}/docker/epoch/epoch_config.yaml:/home/epoch/epoch.yaml
       - epochdb:/home/epoch/node/data/mnesia
       - node_keys:/home/epoch/node/keys
     ports:
-      - "3013:3013"
+      - "${EPOCH_PORT}:3013"
 
   web:
     build: .
