@@ -1,0 +1,24 @@
+---
+peers:
+    - "http://31.13.249.0:3013/"
+    - "http://31.13.249.1:3013/"
+    - "http://31.13.249.120:3013/"
+
+http:
+    external:
+        peer_address: http://epoch:3013/
+    internal:
+        listen_address: 0.0.0.0
+
+websocket:
+    internal:
+        listen_address: 0.0.0.0
+
+keys:
+    dir: ./keys
+
+chain:
+    persist: true
+
+mining:
+    autostart: true
