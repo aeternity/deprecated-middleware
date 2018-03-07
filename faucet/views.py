@@ -33,12 +33,12 @@ class FaucetView(GenericViewSet):
             try:
                 # check balance
                 balance = client.get_balance()
-                if balance < amount:
+                if balance < actual_tokens:
                     raise ParseError('Faucet is out of cash')
 
-                client.spend(pub_key, amount)
+                client.spend(pub_key, actual_tokens)
             except AException:
-                raise NotFound('Faucet has no account')
+                raise ParseError('Faucet has no account')
 
             FaucetTransaction.objects.create(
                 public_key=pub_key,
