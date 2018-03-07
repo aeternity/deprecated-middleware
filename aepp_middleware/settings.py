@@ -28,9 +28,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['localhost'] + os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'faucet',
+    'constance',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +87,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'postgres',
+        'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
         'PORT': 5432,
     }
 }
@@ -111,11 +112,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 CACHES = {
-    'default': {
-        'BACKEND': 'redis_lock.django_cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f'redis://{os.getenv("REDIS_HOST", "redis")}:6379/1',
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
         }
     }
 }
@@ -138,3 +139,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CONSTANCE_CONFIG = {
+    'FAUCET_HOURLY_LIMIT': (50, 'Hour limit of the Faucet'),
+    'FAUCET_DAILY_LIMIT': (500, 'Day limit of the Faucet')
+}
+
+CONSTANCE_REDIS_CONNECTION = {
+    'host': os.getenv('REDIS_HOST', 'redis'),
+    'port': 6379,
+    'db': 1,
+}

@@ -19,7 +19,7 @@ class FaucetView(GenericViewSet):
         pub_key = kwargs.get('key')
         amount = kwargs.get('amount', 100)
 
-        with redis.lock(f'get_faucet_{pub_key}', expire=120):
+        with redis.lock(f'get_faucet_{pub_key}', timeout=5):
 
             free_tokens = FaucetTransaction.receivable_tokens(pub_key)
             actual_tokens = min(amount, free_tokens)

@@ -5,15 +5,14 @@ from datetime import timedelta
 from django.db import models
 
 # Create your models here.
-from django.db.models import Count, Sum
+from django.db.models import Sum
 from django.utils import timezone
+from constance import config
 
 
 class FaucetTransaction(models.Model):
 
-    TOKEN_PER_DAY_MAXIMUM = 200
-
-    public_key = models.CharField(max_length=128, primary_key=True)
+    public_key = models.CharField(max_length=128, db_index=True)
     amount = models.FloatField()
     transfered_at = models.DateTimeField(auto_now_add=True)
 
@@ -21,22 +20,38 @@ class FaucetTransaction(models.Model):
     def receivable_tokens(cls, public_key):
         now = timezone.now()
         today = now.date()
+        later = now.date() + timedelta(hours=1)
         tomorrow = today + timedelta(days=1)
+
+        hourly_limit = config.FAUCET_HOURLY_LIMIT
+        daily_limit = config.FAUCET_DAILY_LIMIT
+
         todays_transactions = cls.objects.filter(
             public_key=public_key,
             transfered_at__lt=tomorrow,
             transfered_at__gte=today
         )
 
-        amount = 0
-        if todays_transactions:
-            amount = (
-                todays_transactions
-                .values_list('public_key')
-                .annotate(todays_amount=Sum('amount'))
-            )
+        txs_last_hour = todays_transactions.filter(
+            transfered_at__lt=later,
+            transfered_at__gte=now
+        )
+        consumed_last_hour = txs_last_hour.values_list('public_key').annotate(spent=Sum('amount'))
 
-        # print(list(amount))
-        # [0]['todays_amount']
-        # amount = 1
-        return max(0, cls.TOKEN_PER_DAY_MAXIMUM - amount)
+        consumed = 0
+        if consumed_last_hour:
+            consumed = consumed_last_hour[0]['spent']
+
+        hourly_available = max(0, hourly_limit - consumed)
+
+        if hourly_available == 0:
+            return 0
+
+        consumed_last_day = todays_transactions.values_list('public_key').annotate(spent=Sum('amount'))
+        consumed = 0
+        if consumed_last_day:
+            consumed = consumed_last_day[0]['spent']
+
+        daily_available = max(0, daily_limit - consumed)
+
+        return min(daily_available, hourly_available)
