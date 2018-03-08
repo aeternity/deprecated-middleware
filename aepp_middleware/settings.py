@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'aepp_middleware.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.getenv('DATABASE_PATH', 'aepp-middleware-db')
+        'NAME': os.path.join(f'{os.getenv("DATABASE_PATH", BASE_DIR)}', 'aepp_middleware.sqlite3')
     }
 }
 

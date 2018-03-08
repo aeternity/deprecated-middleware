@@ -25,12 +25,12 @@ services:
     env_file: .env
     environment:
       - EPOCH_KEYS_DIR=/epoch/keys
-      - DATABASE_PATH=/db/db.sqlite3
+      - DATABASE_PATH=/db/
     volumes:
       - .:/code
       - 'cachedata:/cache'
       - node_keys:/epoch/keys
-      - middleware_db/db.sqlite3:/db/db.sqlite3
+      - middleware_db:/db/db.sqlite3/
     ports:
       - "${APP_PORT}:8000"
     depends_on:
