@@ -16,6 +16,11 @@ class FaucetTransaction(models.Model):
     amount = models.FloatField()
     transfered_at = models.DateTimeField(auto_now_add=True)
 
+    @staticmethod
+    def _get_spent_aggregate(qs):
+        consumed_aggregate = qs.values('public_key').annotate(spent=Sum('amount'))
+        return consumed_aggregate[0]['spent'] if consumed_aggregate else 0
+
     @classmethod
     def receivable_tokens(cls, public_key):
         now = timezone.now()
@@ -26,32 +31,24 @@ class FaucetTransaction(models.Model):
         hourly_limit = config.FAUCET_HOURLY_LIMIT
         daily_limit = config.FAUCET_DAILY_LIMIT
 
-        todays_transactions = cls.objects.filter(
+        txs_today = cls.objects.filter(
             public_key=public_key,
             transfered_at__lt=tomorrow,
             transfered_at__gte=today
         )
 
-        txs_last_hour = todays_transactions.filter(
+        txs_last_hour = txs_today.filter(
             transfered_at__lt=now,
             transfered_at__gte=earlier
         )
-        consumed_last_hour = txs_last_hour.values('public_key').annotate(spent=Sum('amount'))
 
-        consumed = 0
-        if consumed_last_hour:
-            consumed = consumed_last_hour[0]['spent']
-
-        hourly_available = max(0, hourly_limit - consumed)
+        consumed_last_hour = cls._get_spent_aggregate(txs_last_hour)
+        hourly_available = max(0, hourly_limit - consumed_last_hour)
 
         if hourly_available == 0:
             return 0
 
-        consumed_last_day = todays_transactions.values('public_key').annotate(spent=Sum('amount'))
-        consumed = 0
-        if consumed_last_day:
-            consumed = consumed_last_day[0]['spent']
-
-        daily_available = max(0, daily_limit - consumed)
+        consumed_last_day = cls._get_spent_aggregate(txs_today)
+        daily_available = max(0, daily_limit - consumed_last_day)
 
         return min(daily_available, hourly_available)
