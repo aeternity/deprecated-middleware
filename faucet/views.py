@@ -1,11 +1,14 @@
 # Create your views here.
 import sys
+
+from django.conf import settings
 from django.utils import cache
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.viewsets import GenericViewSet
 from aeternity import Config, EpochClient
 from aeternity.exceptions import AException
 from faucet.models import FaucetTransaction
+from aeternity.signing import KeyPair
 
 sys.path.append('/code/src/aeternity')
 sys.path.append('/code/src/')
@@ -32,15 +35,20 @@ class FaucetView(GenericViewSet):
                 )
                 client = EpochClient(configs=config)  # connect with the Epoch node
 
+                # KeyPair.read_from_dir(settings.EPOCH_KEYS, 'secret')
                 try:
                     # check balance
                     balance = client.get_balance()
                     if balance < actual_tokens:
                         raise ParseError('Faucet is out of cash')
-
-                    client.spend(pub_key, actual_tokens)
                 except AException:
                     raise ParseError('Faucet has no account')
+
+                try:
+                    client.spend(pub_key, actual_tokens)
+                    # client.create_transaction(pub_key, actual_tokens)
+                except AException:
+                    raise ParseError('Spend TX failed')
 
                 FaucetTransaction.objects.create(
                     public_key=pub_key,
