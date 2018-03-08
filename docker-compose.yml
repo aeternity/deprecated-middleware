@@ -6,6 +6,8 @@ services:
     image: redis
     volumes:
       - 'redisdata:/data'
+    ports:
+      - "6379:6379"
 
   postgres:
     image: 'postgres:9.5.3'
@@ -13,6 +15,8 @@ services:
     volumes:
       - ./docker/postgres/initdb.d:/docker-entrypoint-initdb.d/
       - 'pgdata:/var/lib/postgresql/data/'
+    ports:
+      - "5432:5432"
 
   epoch:
     image: aetrnty/epoch
@@ -31,9 +35,12 @@ services:
     build: .
     entrypoint: /code/docker/docker-entrypoint.sh
     env_file: .env
+    environment:
+      - EPOCH_KEYS_DIR=/epoch/keys
     volumes:
       - .:/code
       - 'cachedata:/cache'
+      - node_keys:/epoch/keys
     ports:
       - "${APP_PORT}:8000"
     depends_on:

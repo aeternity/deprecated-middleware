@@ -35,7 +35,7 @@ class FaucetView(GenericViewSet):
                 )
                 client = EpochClient(configs=config)  # connect with the Epoch node
 
-                # KeyPair.read_from_dir(settings.EPOCH_KEYS, 'secret')
+                key_pair = KeyPair.read_from_dir(settings.EPOCH_KEYS, 'secret')
                 try:
                     # check balance
                     balance = client.get_balance()
@@ -45,12 +45,10 @@ class FaucetView(GenericViewSet):
                     raise ParseError('Faucet has no account')
 
                 try:
-                    data = {
-                        "recipient_pubkey": pub_key,
-                        "amount": amount,
-                        "fee": 1,
-                    }
-                    client.internal_http_post('spend-tx', json=data)
+
+                    tx = client.create_transaction(pub_key, actual_tokens)
+                    signed_tx = key_pair.sign_transaction(tx)
+                    client.send_signed_transaction(signed_tx)
                 except AException:
                     raise ParseError('Spend TX failed')
 
