@@ -7,41 +7,38 @@ services:
     volumes:
       - 'redisdata:/data'
 
-  postgres:
-    image: 'postgres:9.5.3'
-    env_file: .env
-    volumes:
-      - ./docker/postgres/initdb.d:/docker-entrypoint-initdb.d/
-      - 'pgdata:/var/lib/postgresql/data/'
-
   epoch:
     image: aetrnty/epoch
     env_file: .env
     environment:
       EPOCH_CONFIG: /home/epoch/epoch.yaml
-    command: -aehttp enable_debug_endpoints true # -aecore expected_mine_rate ${EPOCH_MINE_RATE:-15000}
     volumes:
       - ${PWD}/docker/epoch/epoch_config.yaml:/home/epoch/epoch.yaml
       - epochdb:/home/epoch/node/data/mnesia
       - node_keys:/home/epoch/node/keys
     ports:
-      - "3013:3013"
+      - "${EPOCH_PORT}:3013"
 
   web:
     build: .
     entrypoint: /code/docker/docker-entrypoint.sh
     env_file: .env
+    environment:
+      - EPOCH_KEYS_DIR=/epoch/keys
+      - DATABASE_PATH=/db/
     volumes:
       - .:/code
       - 'cachedata:/cache'
+      - node_keys:/epoch/keys
+      - middleware_db:/db/
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:8000"
     depends_on:
-      - postgres
       - redis
 
 volumes:
   node_keys:
+  middleware_db:
   epochdb:
   pgdata:
   redisdata:

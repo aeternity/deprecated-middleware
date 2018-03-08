@@ -5,38 +5,50 @@ from datetime import timedelta
 from django.db import models
 
 # Create your models here.
-from django.db.models import Count, Sum
+from django.db.models import Sum
 from django.utils import timezone
+from constance import config
 
 
 class FaucetTransaction(models.Model):
 
-    TOKEN_PER_DAY_MAXIMUM = 200
+    public_key = models.CharField(max_length=128, db_index=True)
+    amount = models.DecimalField(decimal_places=18, max_digits=24)
+    transferred_at = models.DateTimeField(auto_now_add=True)
 
-    public_key = models.CharField(max_length=128, primary_key=True)
-    amount = models.FloatField()
-    transfered_at = models.DateTimeField(auto_now_add=True)
+    @staticmethod
+    def _get_spent_aggregate(qs):
+        consumed_aggregate = qs.values('public_key').annotate(spent=Sum('amount'))
+        return consumed_aggregate[0]['spent'] if consumed_aggregate else 0
 
     @classmethod
     def receivable_tokens(cls, public_key):
         now = timezone.now()
         today = now.date()
+        earlier = now.date() - timedelta(hours=1)
         tomorrow = today + timedelta(days=1)
-        todays_transactions = cls.objects.filter(
+
+        hourly_limit = config.FAUCET_HOURLY_LIMIT
+        daily_limit = config.FAUCET_DAILY_LIMIT
+
+        txs_today = cls.objects.filter(
             public_key=public_key,
-            transfered_at__lt=tomorrow,
-            transfered_at__gte=today
+            transferred_at__lt=tomorrow,
+            transferred_at__gte=today
         )
 
-        amount = 0
-        if todays_transactions:
-            amount = (
-                todays_transactions
-                .values_list('public_key')
-                .annotate(todays_amount=Sum('amount'))
-            )
+        txs_last_hour = txs_today.filter(
+            transferred_at__lt=now,
+            transferred_at__gte=earlier
+        )
 
-        # print(list(amount))
-        # [0]['todays_amount']
-        # amount = 1
-        return max(0, cls.TOKEN_PER_DAY_MAXIMUM - amount)
+        consumed_last_hour = cls._get_spent_aggregate(txs_last_hour)
+        hourly_available = max(0, hourly_limit - consumed_last_hour)
+
+        if hourly_available == 0:
+            return 0
+
+        consumed_last_day = cls._get_spent_aggregate(txs_today)
+        daily_available = max(0, daily_limit - consumed_last_day)
+
+        return min(daily_available, hourly_available)
