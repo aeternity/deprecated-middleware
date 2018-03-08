@@ -2,6 +2,8 @@
 Django==2.0.2
 djangorestframework==3.7.7
 django_redis==4.9.0
+django-constance==2.1.0
+django-extensions==2.0.2
 
 requests==2.18.4
 websocket-client==0.46.0
@@ -10,7 +12,5 @@ pycrypto==2.6.1
 base58==0.2.5
 psycopg2==2.7.4
 msgpack==0.5.6
-
-django-constance==2.1.0
 
 -e git+https://github.com/aeternity/aepp-sdk-python.git@develop#egg=aeternity
