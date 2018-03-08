@@ -13,9 +13,6 @@ Create an `.env` file in the root directory fullfilling the variable set:
 
 ```
 SECRET_KEY=<A SECRET FOR THE DJANGO SERVER>
-POSTGRES_PASSWORD=<A secure password>
-POSTGRES_USER=postgres
-POSTGRES_DB=aepp_middleware
 
 ALLOWED_HOSTS=<COMMA SEPARATED LIST OF ALLOWED HOSTS>
 EPOCH_PASSWORD=secret
