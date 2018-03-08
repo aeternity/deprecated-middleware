@@ -2,7 +2,6 @@
 
 TIMEOUT=120
 
-/code/docker/wait-for-it.sh -t 120 postgres:5432 -- echo "Postgres is online"
 python manage.py migrate                  # Apply database migrations
 #python manage.py collectstatic --noinput  # Collect static files
 
