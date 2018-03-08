@@ -31,6 +31,7 @@ services:
       - node_keys:/epoch/keys
     ports:
       - "${APP_PORT}:8000"
+    depends_on:
       - redis
 
 volumes:
