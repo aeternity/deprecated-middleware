@@ -52,13 +52,7 @@ class FaucetView(GenericViewSet):
                     raise ParseError('Faucet has no account')
 
                 try:
-
-                    tx = client.create_spend_transaction(
-                        pub_key,
-                        int(actual_tokens)
-                    )
-                    signed_tx = key_pair.sign_transaction(tx)
-                    client.send_signed_transaction(signed_tx)
+                    client.spend(pub_key, int(actual_tokens), key_pair)
                 except AException:
                     raise ParseError(f'Spend TX failed Amount {actual_tokens}')
 
