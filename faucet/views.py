@@ -57,5 +57,7 @@ class FaucetView(GenericViewSet):
                     public_key=pub_key,
                     amount=actual_tokens
                 )
+            elif amount > 0:
+                raise ParseError('Your hourly/daily rate has been reached')
 
         return JsonResponse({'spent': actual_tokens})
