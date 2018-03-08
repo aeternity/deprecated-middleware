@@ -19,7 +19,7 @@ EPOCH_PASSWORD=secret
 
 ```
 
-### Start the application 
+### Start the application
 
 ```
 EPOCH_PORT=3013 APP_PORT=8000 docker-compose up -d
