@@ -2,6 +2,7 @@
 import sys
 
 from django.conf import settings
+from django.http import JsonResponse
 from django.utils import cache
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.viewsets import GenericViewSet
@@ -56,3 +57,5 @@ class FaucetView(GenericViewSet):
                     public_key=pub_key,
                     amount=actual_tokens
                 )
+
+        return JsonResponse({'spent': actual_tokens})
