@@ -2,6 +2,7 @@
 
 TIMEOUT=120
 
+/code/docker/wait-for-it.sh -t 120 postgres:5432 -- echo "Postgres is online"
 python manage.py migrate                  # Apply database migrations
 #python manage.py collectstatic --noinput  # Collect static files
 
@@ -11,7 +12,6 @@ touch /srv/logs/access.log
 touch /srv/logs/error.log
 tail -n 0 -f /srv/logs/*.log &
 
-/code/docker/wait-for-it.sh -t 120 postgres:5432 -- echo "Postgres is online"
 /code/docker/wait-for-it.sh -t 120 redis:6379 -- echo "Redis is online"
 /code/docker/wait-for-it.sh -t 120 epoch:3013 -- echo "Epoch is online"
 
