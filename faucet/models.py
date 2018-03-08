@@ -36,7 +36,7 @@ class FaucetTransaction(models.Model):
             transfered_at__lt=later,
             transfered_at__gte=now
         )
-        consumed_last_hour = txs_last_hour.values_list('public_key').annotate(spent=Sum('amount'))
+        consumed_last_hour = txs_last_hour.values('public_key').annotate(spent=Sum('amount'))
 
         consumed = 0
         if consumed_last_hour:
@@ -47,7 +47,7 @@ class FaucetTransaction(models.Model):
         if hourly_available == 0:
             return 0
 
-        consumed_last_day = todays_transactions.values_list('public_key').annotate(spent=Sum('amount'))
+        consumed_last_day = todays_transactions.values('public_key').annotate(spent=Sum('amount'))
         consumed = 0
         if consumed_last_day:
             consumed = consumed_last_day[0]['spent']
