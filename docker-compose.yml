@@ -18,7 +18,6 @@ services:
     env_file: .env
     environment:
       EPOCH_CONFIG: /home/epoch/epoch.yaml
-    command: -aecore expected_mine_rate ${EPOCH_MINE_RATE:-15000}
     volumes:
       - ${PWD}/docker/epoch/epoch_config.yaml:/home/epoch/epoch.yaml
       - epochdb:/home/epoch/node/data/mnesia
