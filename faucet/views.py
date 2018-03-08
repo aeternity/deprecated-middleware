@@ -45,8 +45,12 @@ class FaucetView(GenericViewSet):
                     raise ParseError('Faucet has no account')
 
                 try:
-                    client.spend(pub_key, actual_tokens)
-                    # client.create_transaction(pub_key, actual_tokens)
+                    data = {
+                        "recipient_pubkey": pub_key,
+                        "amount": amount,
+                        "fee": 1,
+                    }
+                    client.internal_http_post('spend-tx', json=data)
                 except AException:
                     raise ParseError('Spend TX failed')
 
