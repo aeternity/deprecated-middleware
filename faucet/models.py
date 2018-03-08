@@ -13,7 +13,7 @@ from constance import config
 class FaucetTransaction(models.Model):
 
     public_key = models.CharField(max_length=128, db_index=True)
-    amount = models.DecimalField()
+    amount = models.DecimalField(decimal_places=18, max_digits=24)
     transferred_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
@@ -33,13 +33,13 @@ class FaucetTransaction(models.Model):
 
         txs_today = cls.objects.filter(
             public_key=public_key,
-            transfered_at__lt=tomorrow,
-            transfered_at__gte=today
+            transferred_at__lt=tomorrow,
+            transferred_at__gte=today
         )
 
         txs_last_hour = txs_today.filter(
-            transfered_at__lt=now,
-            transfered_at__gte=earlier
+            transferred_at__lt=now,
+            transferred_at__gte=earlier
         )
 
         consumed_last_hour = cls._get_spent_aggregate(txs_last_hour)
