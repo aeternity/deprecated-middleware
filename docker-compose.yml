@@ -7,12 +7,6 @@ services:
     volumes:
       - 'redisdata:/data'
 
-  postgres:
-    image: 'postgres:9.5.3'
-    env_file: .env
-    volumes:
-      - 'pgdata:/var/lib/postgresql/data/'
-
   epoch:
     image: aetrnty/epoch
     env_file: .env
@@ -37,8 +31,6 @@ services:
       - node_keys:/epoch/keys
     ports:
       - "${APP_PORT}:8000"
-    depends_on:
-      - postgres
       - redis
 
 volumes:
