@@ -19,8 +19,8 @@ redis = cache.caches['default']
 class FaucetView(GenericViewSet):
 
     def create(self, request, **kwargs):
-        pub_key = kwargs.get('key')
-        amount = kwargs.get('amount', 100)
+        pub_key = request.data.get('key')
+        amount = request.data.get('amount', 100)
 
         with redis.lock(f'get_faucet_{pub_key}', timeout=5):
 
