@@ -20,7 +20,7 @@ class FaucetTransaction(models.Model):
     def receivable_tokens(cls, public_key):
         now = timezone.now()
         today = now.date()
-        later = now.date() + timedelta(hours=1)
+        earlier = now.date() - timedelta(hours=1)
         tomorrow = today + timedelta(days=1)
 
         hourly_limit = config.FAUCET_HOURLY_LIMIT
@@ -33,8 +33,8 @@ class FaucetTransaction(models.Model):
         )
 
         txs_last_hour = todays_transactions.filter(
-            transfered_at__lt=later,
-            transfered_at__gte=now
+            transfered_at__lt=now,
+            transfered_at__gte=earlier
         )
         consumed_last_hour = txs_last_hour.values('public_key').annotate(spent=Sum('amount'))
 
