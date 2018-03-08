@@ -151,4 +151,4 @@ CONSTANCE_REDIS_CONNECTION = {
     'db': 1,
 }
 
-EPOCH_KEYS_DIR = os.getenv('EPOCH_KEYS_DIR')
+EPOCH_KEYS = os.getenv('EPOCH_KEYS_DIR')
