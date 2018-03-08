@@ -29,10 +29,11 @@ class FaucetView(GenericViewSet):
             actual_tokens = min(amount, free_tokens)
 
             if actual_tokens > 0:
+                epoch_host = settings.EPOCH_HOST
                 config = Config(
-                    external_host='epoch:3013',
-                    internal_host='epoch:3113',
-                    websocket_host='epoch:3114'
+                    external_host=f'{epoch_host}:3013',
+                    internal_host=f'{epoch_host}:3113',
+                    websocket_host=f'{epoch_host}:3114'
                 )
                 client = EpochClient(configs=config)  # connect with the Epoch node
 
@@ -47,9 +48,10 @@ class FaucetView(GenericViewSet):
 
                 try:
 
-                    tx = client.create_transaction(pub_key, int(actual_tokens))
-                    signed_tx = key_pair.sign_transaction(tx)
-                    client.send_signed_transaction(signed_tx)
+                    # tx = client.create_transaction(pub_key, int(actual_tokens))
+                    # signed_tx = key_pair.sign_transaction(tx)
+                    # client.send_signed_transaction(signed_tx)
+                    client.spend(pub_key, actual_tokens)
                 except AException:
                     raise ParseError(f'Spend TX failed Amount {actual_tokens}')
 

@@ -152,5 +152,6 @@ CONSTANCE_REDIS_CONNECTION = {
     'db': 1,
 }
 
+EPOCH_HOST = os.getenv('EPOCH_HOST', 'epoch')
 EPOCH_KEYS = os.getenv('EPOCH_KEYS_DIR')
 EPOCH_PASSWORD = os.getenv('EPOCH_PASSWORD')
