@@ -48,10 +48,9 @@ class FaucetView(GenericViewSet):
 
                 try:
 
-                    # tx = client.create_transaction(pub_key, int(actual_tokens))
-                    # signed_tx = key_pair.sign_transaction(tx)
-                    # client.send_signed_transaction(signed_tx)
-                    client.spend(pub_key, actual_tokens)
+                    tx = client.create_transaction(pub_key, int(actual_tokens))
+                    signed_tx = key_pair.sign_transaction(tx)
+                    client.send_signed_transaction(signed_tx)
                 except AException:
                     raise ParseError(f'Spend TX failed Amount {actual_tokens}')
 
