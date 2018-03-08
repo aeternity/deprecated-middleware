@@ -51,7 +51,7 @@ class FaucetView(GenericViewSet):
                     signed_tx = key_pair.sign_transaction(tx)
                     client.send_signed_transaction(signed_tx)
                 except AException:
-                    raise ParseError('Spend TX failed')
+                    raise ParseError(f'Spend TX failed Amount {tx}')
 
                 FaucetTransaction.objects.create(
                     public_key=pub_key,
