@@ -28,7 +28,7 @@ class FaucetView(GenericViewSet):
             free_tokens = FaucetTransaction.receivable_tokens(pub_key)
             actual_tokens = min(amount, free_tokens)
 
-            if actual_tokens:
+            if actual_tokens > 0:
                 config = Config(
                     external_host='epoch:3013',
                     internal_host='epoch:3113',
