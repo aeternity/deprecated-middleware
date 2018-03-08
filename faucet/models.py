@@ -13,8 +13,8 @@ from constance import config
 class FaucetTransaction(models.Model):
 
     public_key = models.CharField(max_length=128, db_index=True)
-    amount = models.FloatField()
-    transfered_at = models.DateTimeField(auto_now_add=True)
+    amount = models.DecimalField()
+    transferred_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def _get_spent_aggregate(qs):
