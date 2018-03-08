@@ -36,7 +36,7 @@ class FaucetView(GenericViewSet):
                 )
                 client = EpochClient(configs=config)  # connect with the Epoch node
 
-                key_pair = KeyPair.read_from_dir(settings.EPOCH_KEYS, 'secret')
+                key_pair = KeyPair.read_from_dir(settings.EPOCH_KEYS, settings.EPOCH_PASSWORD)
                 try:
                     # check balance
                     balance = client.get_balance()
