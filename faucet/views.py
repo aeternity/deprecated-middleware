@@ -24,23 +24,25 @@ class FaucetView(GenericViewSet):
             free_tokens = FaucetTransaction.receivable_tokens(pub_key)
             actual_tokens = min(amount, free_tokens)
 
-            config = Config(
-                external_host='epoch:3013',
-                internal_host='epoch:3113',
-                websocket_host='epoch:3114'
-            )
-            client = EpochClient(configs=config)  # connect with the Epoch node
-            try:
-                # check balance
-                balance = client.get_balance()
-                if balance < actual_tokens:
-                    raise ParseError('Faucet is out of cash')
+            if actual_tokens:
+                config = Config(
+                    external_host='epoch:3013',
+                    internal_host='epoch:3113',
+                    websocket_host='epoch:3114'
+                )
+                client = EpochClient(configs=config)  # connect with the Epoch node
 
-                client.spend(pub_key, actual_tokens)
-            except AException:
-                raise ParseError('Faucet has no account')
+                try:
+                    # check balance
+                    balance = client.get_balance()
+                    if balance < actual_tokens:
+                        raise ParseError('Faucet is out of cash')
 
-            FaucetTransaction.objects.create(
-                public_key=pub_key,
-                amount=actual_tokens
-            )
+                    client.spend(pub_key, actual_tokens)
+                except AException:
+                    raise ParseError('Faucet has no account')
+
+                FaucetTransaction.objects.create(
+                    public_key=pub_key,
+                    amount=actual_tokens
+                )
