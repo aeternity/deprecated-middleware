@@ -11,7 +11,6 @@ services:
     image: 'postgres:9.5.3'
     env_file: .env
     volumes:
-      - ./docker/postgres/initdb.d:/docker-entrypoint-initdb.d/
       - 'pgdata:/var/lib/postgresql/data/'
 
   epoch:
