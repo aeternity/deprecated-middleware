@@ -35,9 +35,14 @@ class FaucetView(GenericViewSet):
                     internal_host=f'{epoch_host}:3113',
                     websocket_host=f'{epoch_host}:3114'
                 )
-                client = EpochClient(configs=config)  # connect with the Epoch node
 
-                key_pair = KeyPair.read_from_dir(settings.EPOCH_KEYS, settings.EPOCH_PASSWORD)
+                # connect with the Epoch node
+                client = EpochClient(configs=config)
+
+                key_pair = KeyPair.read_from_dir(
+                    settings.EPOCH_KEYS,
+                    settings.EPOCH_PASSWORD
+                )
                 try:
                     # check balance
                     balance = client.get_balance()
@@ -48,7 +53,10 @@ class FaucetView(GenericViewSet):
 
                 try:
 
-                    tx = client.create_transaction(pub_key, int(actual_tokens))
+                    tx = client.create_spend_transaction(
+                        pub_key,
+                        int(actual_tokens)
+                    )
                     signed_tx = key_pair.sign_transaction(tx)
                     client.send_signed_transaction(signed_tx)
                 except AException:
