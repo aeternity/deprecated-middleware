@@ -17,8 +17,12 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include
 from faucet import urls as faucet_urls
+from aepp_auth import urls as auth_urls
+from epoch_extra import urls as epoch_urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^faucet/', include(faucet_urls))
+    url(r'^faucet/', include(faucet_urls)),
+    url(r'^auth/', include(auth_urls)),
+    url(r'^aeternity/', include(epoch_urls))
 ]

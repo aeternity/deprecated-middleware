@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.utils import cache
 from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from aeternity import Config, EpochClient
 from aeternity.exceptions import AException
@@ -18,6 +19,8 @@ redis = cache.caches['default']
 
 
 class FaucetView(GenericViewSet):
+
+    permission_classes = (IsAuthenticated, )
 
     def create(self, request, **kwargs):
         pub_key = request.data.get('key')

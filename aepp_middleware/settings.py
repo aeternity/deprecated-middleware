@@ -39,14 +39,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
 
+    'corsheaders',
     'rest_framework',
-    'faucet',
     'constance',
+
+    'faucet',
+    'aepp_auth',
+    'epoch_extra',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -144,6 +149,23 @@ CONSTANCE_REDIS_CONNECTION = {
     'db': 1,
 }
 
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8080',
+)
+
 EPOCH_HOST = os.getenv('EPOCH_HOST', 'epoch')
 EPOCH_KEYS = os.getenv('EPOCH_KEYS_DIR')
 EPOCH_PASSWORD = os.getenv('EPOCH_PASSWORD')
+
+GITHUB_OAUTH_CLIENT_ID = os.getenv('GITHUB_OAUTH_CLIENT_ID')
+GITHUB_OAUTH_CLIENT_SECRET = os.getenv('GITHUB_OAUTH_CLIENT_SECRET')
+
+AUTH_USER_MODEL = 'aepp_auth.GithubUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'aepp_auth.backends.GithubBackend'
+    )
+}
