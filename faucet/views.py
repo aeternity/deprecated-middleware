@@ -1,15 +1,17 @@
 # Create your views here.
 import sys
 
-from django.conf import settings
 from django.http import JsonResponse
 from django.utils import cache
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.exceptions import ParseError
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
-from aeternity import Config, EpochClient
+
+from aeternity import AEName
 from aeternity.exceptions import AException
+from epoch_extra import get_client, get_key_pair
+from epoch_extra.models import AeName
 from faucet.models import FaucetTransaction
-from aeternity.signing import KeyPair
 
 sys.path.append('/code/src/aeternity')
 sys.path.append('/code/src/')
@@ -18,6 +20,8 @@ redis = cache.caches['default']
 
 
 class FaucetView(GenericViewSet):
+
+    permission_classes = (IsAuthenticated, )
 
     def create(self, request, **kwargs):
         pub_key = request.data.get('key')
@@ -28,21 +32,10 @@ class FaucetView(GenericViewSet):
             free_coins = FaucetTransaction.receivable_tokens(pub_key)
             actual_coins = min(amount, free_coins)
 
+            response_data = {}
+
             if actual_coins > 0:
-                epoch_host = settings.EPOCH_HOST
-                config = Config(
-                    external_host=f'{epoch_host}:3013',
-                    internal_host=f'{epoch_host}:3113',
-                    websocket_host=f'{epoch_host}:3114'
-                )
-
-                # connect with the Epoch node
-                client = EpochClient(configs=config)
-
-                key_pair = KeyPair.read_from_dir(
-                    settings.EPOCH_KEYS,
-                    settings.EPOCH_PASSWORD
-                )
+                client = get_client()
                 try:
                     # check balance
                     balance = client.get_balance()
@@ -51,10 +44,32 @@ class FaucetView(GenericViewSet):
                 except AException:
                     raise ParseError('Faucet has no account')
 
+                key_pair = get_key_pair()
                 try:
-                    client.spend(pub_key, int(actual_coins), key_pair)
+                    tx_hash = client.spend(pub_key, int(actual_coins), key_pair)
+                    response_data['tx_hash'] = tx_hash
                 except AException:
-                    raise ParseError(f'Spend TX failed Amount {actual_coins}')
+                    raise ParseError(f'Spend TX failed')
+
+                response_data['spent'] = actual_coins
+
+                # TODO Move this to a more appropriate place
+                #
+                # user = request.user
+                # aet_name = f'{user.username}.aet'
+                # try:
+                #     ae_name = AeName.objects.get(user=user, name=aet_name)
+                # except AeName.DoesNotExist:
+                #     ae_name = AeName.objects.create(
+                #         user=user,
+                #         pub_key=pub_key,
+                #         name=aet_name
+                #     )
+                #
+                # if AEName(aet_name, client=client).is_available():
+                #     # Another task will pick up from here later
+                #     # see tasks.claim_unclaimed_names()
+                #     ae_name.preclaim()
 
                 FaucetTransaction.objects.create(
                     public_key=pub_key,
@@ -63,4 +78,7 @@ class FaucetView(GenericViewSet):
             elif amount > 0:
                 raise ParseError('Your hourly/daily rate has been reached')
 
-        return JsonResponse({'spent': actual_coins})
+        if not response_data:
+            response_data['error'] = 'No token available'
+
+        return JsonResponse(response_data)
