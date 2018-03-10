@@ -15,7 +15,9 @@ def get_or_create_github_user_from_token(token):
     try:
         user = GithubUser.objects.get(user_id=user_id)
         user.token = token
-        user.save(update_fields=['token'])
+        user.username = user_data['login']
+        user.email = user_data['email']
+        user.save(update_fields=['token', 'username', 'email'])
     except GithubUser.DoesNotExist:
         if user_data_response.status_code == 200:
             user = GithubUser.objects.create(

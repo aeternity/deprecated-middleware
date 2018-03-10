@@ -7,7 +7,7 @@ from django.utils import cache
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
-from aeternity import Config, EpochClient
+from aeternity import Config, EpochClient, AEName
 from aeternity.exceptions import AException
 
 from epoch_extra.models import AeName
@@ -75,6 +75,9 @@ class FaucetView(GenericViewSet):
                         pub_key=pub_key,
                         name=aet_name
                     )
+
+                ae_name_obj = AEName(aet_name, client=client)
+                ae_name_obj.full_claim_blocking()
 
                 response_data['name'] = aet_name
                 ae_name.pub_key = pub_key
