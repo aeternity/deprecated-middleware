@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from aeternity import Config, EpochClient
 from aeternity.exceptions import AException
+
+from epoch_extra.models import AeName
 from faucet.models import FaucetTransaction
 from aeternity.signing import KeyPair
 
@@ -30,6 +32,8 @@ class FaucetView(GenericViewSet):
 
             free_coins = FaucetTransaction.receivable_tokens(pub_key)
             actual_coins = min(amount, free_coins)
+
+            response_data = {}
 
             if actual_coins > 0:
                 epoch_host = settings.EPOCH_HOST
@@ -59,6 +63,24 @@ class FaucetView(GenericViewSet):
                 except AException:
                     raise ParseError(f'Spend TX failed Amount {actual_coins}')
 
+                response_data['spent'] = actual_coins
+
+                user = request.user
+                aet_name = f'{user.login}.aet'
+                try:
+                    ae_name = AeName.objects.get(user=user, name=aet_name)
+                except AeName.DoesNotExist:
+                    ae_name = AeName.objects.create(
+                        user=user,
+                        pub_key=pub_key,
+                        name=aet_name
+                    )
+
+                response_data['name'] = aet_name
+                ae_name.pub_key = pub_key
+                ae_name.name = user.login
+                ae_name.save(update_fields=['pub_key', 'name'])
+
                 FaucetTransaction.objects.create(
                     public_key=pub_key,
                     amount=actual_coins
@@ -66,4 +88,7 @@ class FaucetView(GenericViewSet):
             elif amount > 0:
                 raise ParseError('Your hourly/daily rate has been reached')
 
-        return JsonResponse({'spent': actual_coins})
+        if not response_data:
+            response_data['error'] = 'No token available'
+
+        return JsonResponse(response_data)

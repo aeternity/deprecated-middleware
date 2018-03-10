@@ -24,4 +24,5 @@ class BalanceView(ViewSet):
         elif response.status_code == 404:
             raise NotFound(f'{response.json()["reason"]}')
         json = response.json()
+
         return JsonResponse(json)
