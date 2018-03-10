@@ -82,12 +82,15 @@ class FaucetView(GenericViewSet):
                 if pointers:
                     return JsonResponse(pointers)
 
-                if not ae_name_obj.is_available():
-                    raise NameNotAvailable(aet_name)
-                ae_name_obj.preclaim(fee=1)
-                ae_name_obj.claim(fee=1)
+                if ae_name_obj.is_available():
+                    ae_name_obj.preclaim(fee=1)
+                    ae_name_obj.claim(fee=1)
 
-                response_data['name'] = aet_name
+                response_data['name'] = {
+                    'id': aet_name,
+                    'pointers': ae_name_obj.pointers,
+                    'status': ae_name.status
+                }
                 ae_name.pub_key = pub_key
                 ae_name.name = user.username
                 ae_name.save(update_fields=['pub_key', 'name'])
