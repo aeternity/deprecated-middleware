@@ -66,7 +66,7 @@ class FaucetView(GenericViewSet):
                 response_data['spent'] = actual_coins
 
                 user = request.user
-                aet_name = f'{user.login}.aet'
+                aet_name = f'{user.username}.aet'
                 try:
                     ae_name = AeName.objects.get(user=user, name=aet_name)
                 except AeName.DoesNotExist:
