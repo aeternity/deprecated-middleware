@@ -14,3 +14,9 @@ class AeName(models.Model):
     name = models.CharField(max_length=128)
     pointers = models.ManyToManyField(User, related_name='pointers')
     status = models.CharField(max_length=64, default=NameStatus.PRECLAIMED)
+
+    claim_salt = models.BigIntegerField(null=True)
+    name_hash = models.CharField(max_length=64, null=True)
+
+    preclaim_tx = models.CharField(max_length=128)
+    claim_tx = models.CharField()

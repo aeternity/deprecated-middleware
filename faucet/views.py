@@ -79,18 +79,24 @@ class FaucetView(GenericViewSet):
                 ae_name_obj = AEName(aet_name, client=client)
 
                 pointers = ae_name_obj.pointers
-                if pointers:
-                    return JsonResponse(pointers)
 
-                if not ae_name_obj.is_available():
-                    raise NameNotAvailable(aet_name)
-                ae_name_obj.preclaim(fee=1)
-                ae_name_obj.claim(fee=1)
+                update_fields = []
+                if ae_name_obj.is_available():
+                    preclaim_tx, preclaim_salt = ae_name_obj.preclaim(fee=1)
+                    ae_name.claim_salt = preclaim_salt
+                    ae_name.preclaim_tx = preclaim_tx
+                    update_fields.extend(['claim_salt', 'preclaim_tx'])
 
-                response_data['name'] = aet_name
+                response_data['name'] = {
+                    'id': aet_name,
+                    'pointers': pointers,
+                    'status': ae_name.status
+                }
                 ae_name.pub_key = pub_key
                 ae_name.name = user.username
-                ae_name.save(update_fields=['pub_key', 'name'])
+
+                update_fields.extend(['pub_key', 'name'])
+                ae_name.save(update_fields=update_fields)
 
                 FaucetTransaction.objects.create(
                     public_key=pub_key,

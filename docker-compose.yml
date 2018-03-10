@@ -26,6 +26,7 @@ services:
     environment:
       - EPOCH_KEYS_DIR=/epoch/keys
       - DATABASE_PATH=/db/
+      - RABBITMQ_HOST=rabbitmq
     volumes:
       - .:/code
       - 'cachedata:/cache'
@@ -36,6 +37,15 @@ services:
     depends_on:
       - redis
 
+  rabbitmq:
+    image: rabbitmq:3.7.4
+    env_file:
+      - RABBITMQ_USER=rabbitmq
+    volumes:
+      - ./docker/rabbitmq/docker-entrypoint.sh:/app/rabbitmq-entrypoint.sh
+      - rabbit:/var/lib/rabbitmq
+
+
 volumes:
   node_keys:
   middleware_db:
@@ -43,3 +53,4 @@ volumes:
   pgdata:
   redisdata:
   cachedata:
+  rabbit:
