@@ -176,3 +176,4 @@ CORS_ALLOW_HEADERS = default_headers + (
     'x-gh-token',
 )
 
+APPEND_SLASH = True
