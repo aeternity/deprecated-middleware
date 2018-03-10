@@ -77,6 +77,11 @@ class FaucetView(GenericViewSet):
                     )
 
                 ae_name_obj = AEName(aet_name, client=client)
+
+                pointers = ae_name_obj.pointers
+                if pointers:
+                    return JsonResponse(pointers)
+
                 if not ae_name_obj.is_available():
                     raise NameNotAvailable(aet_name)
                 ae_name_obj.preclaim(fee=1)
