@@ -8,7 +8,7 @@ from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from aeternity import Config, EpochClient, AEName
-from aeternity.exceptions import AException
+from aeternity.exceptions import AException, NameNotAvailable
 
 from epoch_extra.models import AeName
 from faucet.models import FaucetTransaction
@@ -77,11 +77,14 @@ class FaucetView(GenericViewSet):
                     )
 
                 ae_name_obj = AEName(aet_name, client=client)
-                ae_name_obj.full_claim_blocking()
+                if not ae_name_obj.is_available():
+                    raise NameNotAvailable(aet_name)
+                ae_name_obj.preclaim(fee=1)
+                ae_name_obj.claim(fee=1)
 
                 response_data['name'] = aet_name
                 ae_name.pub_key = pub_key
-                ae_name.name = user.login
+                ae_name.name = user.username
                 ae_name.save(update_fields=['pub_key', 'name'])
 
                 FaucetTransaction.objects.create(
