@@ -93,7 +93,6 @@ class FaucetView(GenericViewSet):
                     'status': ae_name.status
                 }
                 ae_name.pub_key = pub_key
-                ae_name.name = user.username
 
                 update_fields.extend(['pub_key', 'name'])
                 ae_name.save(update_fields=update_fields)
