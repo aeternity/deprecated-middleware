@@ -3,9 +3,13 @@
 import requests
 from django.conf import settings
 from django.http import JsonResponse
+from rest_framework import views
 from rest_framework.exceptions import ParseError, APIException, NotFound
 from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
+
+from epoch_extra.models import AeName
+from epoch_extra.serializer import AensSerializer
 
 
 class BalanceView(ViewSet):
@@ -26,3 +30,14 @@ class BalanceView(ViewSet):
         json = response.json()
 
         return JsonResponse(json)
+
+
+class AensViewSet(ModelViewSet):
+
+    serializer_class = AensSerializer
+    queryset = AeName.objects.all()
+
+    def retrieve(self, request, pk=None):
+        name = self.get_object()
+        serializer = self.get_serializer(name)
+        return JsonResponse(data=serializer.data)
