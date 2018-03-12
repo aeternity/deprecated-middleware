@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from aeternity.aens import NameStatus
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -9,7 +11,7 @@ User = get_user_model()
 
 class AeName(models.Model):
 
-    user = models.ForeignKey(User, on_delete='CASCADE')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete='CASCADE')
     pub_key = models.TextField(null=True)
     name = models.CharField(max_length=128)
     pointers = models.ManyToManyField(User, related_name='pointers')
@@ -18,5 +20,5 @@ class AeName(models.Model):
     claim_salt = models.BigIntegerField(null=True)
     name_hash = models.CharField(max_length=64, null=True)
 
-    preclaim_tx = models.CharField(max_length=128)
-    claim_tx = models.CharField()
+    preclaim_tx = models.CharField(max_length=128, null=True)
+    claim_tx = models.CharField(max_length=128, null=True)
