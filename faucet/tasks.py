@@ -8,38 +8,36 @@ from epoch_extra.models import AeName
 @shared_task
 def claim_unclaimed_names():
 
-    # ae_name_obj = AEName(name, client=client)
+    for ae_name in AeName.objects.filter(status=NameStatus.PRECLAIMED):
 
-    for name in AeName.objects.filter(status=NameStatus.PRECLAIMED):
-
-        if name.preclaim_tx:
-            response = client.get_transaction_by_transaction_hash(name.preclaim_tx)
+        if ae_name.preclaim_tx:
+            response = client.get_transaction_by_transaction_hash(ae_name.preclaim_tx)
 
             if response.status_code == 200:
                 response_data = response.json()
                 block_height = response_data['block_height']
                 if block_height == -1:
-                    ae_name = AEName(name, client=client)
-                    ae_name.preclaim_salt = name.claim_salt
+                    ae_name = AEName(ae_name, client=client)
+                    ae_name.preclaim_salt = ae_name.claim_salt
                     claim_tx = ae_name.claim()
-                    name.claim_tx = claim_tx
-                    name.status = NameStatus.CLAIMED
-                    name.save(update_fields=['status, claim_tx'])
+                    ae_name.claim_tx = claim_tx
+                    ae_name.status = NameStatus.CLAIMED
+                    ae_name.save(update_fields=['status, claim_tx'])
         else:
-            aen = AEName(name, client=client)
+            aen = AEName(ae_name.name, client=client)
             aen.update_status()
             if aen.status == NameStatus.AVAILABLE:
-                name.preclaim()
+                ae_name.preclaim()
 
-    for name in AeName.objects.filter(status=NameStatus.CLAIMED):
-        response = client.get_transaction_by_transaction_hash(name.claim_tx)
+    for ae_name in AeName.objects.filter(status=NameStatus.CLAIMED):
+        response = client.get_transaction_by_transaction_hash(ae_name.claim_tx)
 
         if response.status_code == 200:
             response_data = response.json()
             block_height = response_data['block_height']
             if block_height == -1:
-                ae_name = AEName(name, client=client)
+                ae_name = AEName(ae_name, client=client)
                 ae_name.update_status()
                 next(pointer
                      for pointer in ae_name.pointers
-                     if pointer[1] == name.pub_key)
+                     if pointer[1] == ae_name.pub_key)
