@@ -39,7 +39,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7.4
-    env_file:
+    env_file: .env
+    environment:
       - RABBITMQ_USER=rabbitmq
     volumes:
       - ./docker/rabbitmq/docker-entrypoint.sh:/app/rabbitmq-entrypoint.sh
