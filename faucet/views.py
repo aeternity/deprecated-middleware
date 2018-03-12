@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 from aeternity import Config, EpochClient, AEName
 from aeternity.exceptions import AException, NameNotAvailable
+from epoch_extra import client, key_pair
 
 from epoch_extra.models import AeName
 from faucet.models import FaucetTransaction
@@ -36,20 +37,6 @@ class FaucetView(GenericViewSet):
             response_data = {}
 
             if actual_coins > 0:
-                epoch_host = settings.EPOCH_HOST
-                config = Config(
-                    external_host=f'{epoch_host}:3013',
-                    internal_host=f'{epoch_host}:3113',
-                    websocket_host=f'{epoch_host}:3114'
-                )
-
-                # connect with the Epoch node
-                client = EpochClient(configs=config)
-
-                key_pair = KeyPair.read_from_dir(
-                    settings.EPOCH_KEYS,
-                    settings.EPOCH_PASSWORD
-                )
                 try:
                     # check balance
                     balance = client.get_balance()
@@ -82,7 +69,7 @@ class FaucetView(GenericViewSet):
 
                 update_fields = []
                 if ae_name_obj.is_available():
-                    preclaim_tx, preclaim_salt = ae_name_obj.preclaim(fee=1)
+                    preclaim_tx, preclaim_salt = ae_name_obj.preclaim(key_pair, fee=1)
                     ae_name.claim_salt = preclaim_salt
                     ae_name.preclaim_tx = preclaim_tx
                     update_fields.extend(['claim_salt', 'preclaim_tx'])

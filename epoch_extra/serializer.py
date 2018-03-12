@@ -5,6 +5,8 @@ from epoch_extra.models import AeName
 
 class AensSerializer(serializers.ModelSerializer):
 
+    pointers = serializers.SerializerMethodField()
+
     class Meta:
         model = AeName
         fields = (
@@ -13,4 +15,8 @@ class AensSerializer(serializers.ModelSerializer):
             'status',
             'preclaim_tx',
             'claim_tx',
+            'pointers'
         )
+
+    def get_pointers(self):
+        return [pointer[1] for pointer in self.pointers]
