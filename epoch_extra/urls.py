@@ -11,5 +11,4 @@ router.register(r'^name', AensViewSet, base_name='name')
 
 urlpatterns = [
     url(r'^balance/(?P<pk>.+)', csrf_exempt(BalanceView.as_view({'get': 'retrieve'}))),
-    url(r'<')
 ] + router.urls
