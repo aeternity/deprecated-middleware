@@ -44,7 +44,7 @@ class AeName(models.Model):
     def claim(self):
         client = get_client()
         name = AEName(self.name, client=client)
-        name.preclaim_salt = int(self.claim_salt)it
+        name.preclaim_salt = int(self.claim_salt)
         key_pair = get_key_pair()
         tx_hash, _ = name.claim(key_pair)
         self.claim_tx = tx_hash
