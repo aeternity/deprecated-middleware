@@ -34,3 +34,16 @@ def claim_unclaimed_names():
                 name.claim_tx = claim_tx
                 name.status = NameStatus.CLAIMED
                 name.save(update_fields=['status, claim_tx'])
+
+    for name in AeName.objects.filter(status=NameStatus.CLAIMED):
+        response = client.get_transaction_by_transaction_hash(name.claim_tx)
+
+        if response.status_code == 200:
+            response_data = response.json()
+            block_height = response_data['block_height']
+            if block_height == -1:
+                ae_name = AEName(name, client=client)
+                ae_name.update_status()
+                next(pointer
+                     for pointer in ae_name.pointers
+                     if pointer[1] == name.pub_key)
