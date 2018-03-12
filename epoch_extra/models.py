@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from aeternity.aens import NameStatus
+from aeternity.aens import NameStatus, AEName
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -22,3 +22,9 @@ class AeName(models.Model):
 
     preclaim_tx = models.CharField(max_length=128, null=True)
     claim_tx = models.CharField(max_length=128, null=True)
+
+    def update_from_chain(self, client):
+        name = AEName(self.name, client=client)
+        name.update_status()
+        self.status = name.status
+        self.save(update_fields=['status'])
