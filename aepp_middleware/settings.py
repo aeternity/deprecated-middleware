@@ -168,9 +168,9 @@ REST_FRAMEWORK = {
     )
 }
 
-CORS_ORIGIN_WHITELIST = (
+CORS_ORIGIN_WHITELIST = [
     'localhost:8080',
-) + os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
+] + os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
 
 CORS_ALLOW_HEADERS = default_headers + (
     'x-gh-token',
