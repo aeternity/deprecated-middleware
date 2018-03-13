@@ -17,7 +17,7 @@ services:
       - epochdb:/home/epoch/node/data/mnesia
       - node_keys:/home/epoch/node/keys
     ports:
-      - "${EPOCH_PORT}:3013"
+      - "${EPOCH_PORT:-3013}:3013"
 
   web:
     build: .
@@ -33,7 +33,7 @@ services:
       - node_keys:/epoch/keys
       - middleware_db:/db/
     ports:
-      - "${APP_PORT}:8000"
+      - "${APP_PORT:-8000}:8000"
     depends_on:
       - redis
 
