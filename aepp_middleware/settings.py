@@ -151,10 +151,6 @@ CONSTANCE_REDIS_CONNECTION = {
     'db': 1,
 }
 
-CORS_ORIGIN_WHITELIST = (
-    'localhost:8080',
-)
-
 EPOCH_HOST = os.getenv('EPOCH_HOST', 'epoch')
 EPOCH_KEYS = os.getenv('EPOCH_KEYS_DIR')
 EPOCH_PASSWORD = os.getenv('EPOCH_PASSWORD')
@@ -171,6 +167,10 @@ REST_FRAMEWORK = {
         'aepp_auth.backends.GithubBackend'
     )
 }
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8080',
+) + os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
 
 CORS_ALLOW_HEADERS = default_headers + (
     'x-gh-token',
