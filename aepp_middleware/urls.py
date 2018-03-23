@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^faucet/', include(faucet_urls)),
     url(r'^auth/', include(auth_urls)),
-    url(r'^aeternity/', include(epoch_urls))
+    url(r'^/', include(epoch_urls))
 ]

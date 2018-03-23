@@ -30,8 +30,6 @@ services:
       - 'cachedata:/cache'
       - node_keys:/epoch/keys
       - middleware_db:/db/
-    ports:
-      - "${APP_PORT:-8000}:8000"
     depends_on:
       - redis
 
