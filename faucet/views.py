@@ -53,21 +53,23 @@ class FaucetView(GenericViewSet):
 
                 response_data['spent'] = actual_coins
 
-                user = request.user
-                aet_name = f'{user.username}.aet'
-                try:
-                    ae_name = AeName.objects.get(user=user, name=aet_name)
-                except AeName.DoesNotExist:
-                    ae_name = AeName.objects.create(
-                        user=user,
-                        pub_key=pub_key,
-                        name=aet_name
-                    )
-
-                if AEName(aet_name, client=client).is_available():
-                    # Another task will pick up from here later
-                    # see tasks.claim_unclaimed_names()
-                    ae_name.preclaim()
+                # TODO Move this to a more appropriate place
+                #
+                # user = request.user
+                # aet_name = f'{user.username}.aet'
+                # try:
+                #     ae_name = AeName.objects.get(user=user, name=aet_name)
+                # except AeName.DoesNotExist:
+                #     ae_name = AeName.objects.create(
+                #         user=user,
+                #         pub_key=pub_key,
+                #         name=aet_name
+                #     )
+                #
+                # if AEName(aet_name, client=client).is_available():
+                #     # Another task will pick up from here later
+                #     # see tasks.claim_unclaimed_names()
+                #     ae_name.preclaim()
 
                 FaucetTransaction.objects.create(
                     public_key=pub_key,
