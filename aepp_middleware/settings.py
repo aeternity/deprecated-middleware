@@ -174,6 +174,7 @@ CORS_ORIGIN_WHITELIST = [
 
 CORS_ALLOW_HEADERS = default_headers + (
     'x-gh-token',
+    'authorization'
 )
 
 APPEND_SLASH = True
