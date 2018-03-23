@@ -22,7 +22,7 @@ def get_or_create_github_user_from_token(token):
             github_user.save(update_fields=['token', 'username', 'email'])
         except GithubUser.DoesNotExist:
             if user_data_response.status_code == 200:
-                user = AeternityUser.objects.create(
+                user, _ = AeternityUser.objects.get_or_create(
                     username=user_data['login'],
                     email=user_data['email']
                 )
