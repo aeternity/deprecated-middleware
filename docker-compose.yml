@@ -16,8 +16,6 @@ services:
       - ${PWD}/docker/epoch/epoch_config.yaml:/home/epoch/epoch.yaml
       - epochdb:/home/epoch/node/data/mnesia
       - node_keys:/home/epoch/node/keys
-    ports:
-      - "${EPOCH_PORT:-3013}:3013"
 
   web:
     build: .
@@ -46,6 +44,14 @@ services:
       - ./docker/rabbitmq/docker-entrypoint.sh:/app/rabbitmq-entrypoint.sh
       - rabbit:/var/lib/rabbitmq
 
+  proxy:
+    image: nginx:1.13.8
+    hostname: proxy
+    ports:
+     - "3013:3013"
+    volumes:
+      - ./docker/nginx/nginx-default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/nginx-cors.conf:/etc/nginx/cors.conf
 
 volumes:
   node_keys:
