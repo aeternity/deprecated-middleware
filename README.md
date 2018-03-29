@@ -58,7 +58,7 @@ docker-compose up -d
 Curl example
 ```
 curl -X POST \
-  http://<YOUR PUBLIC PORT>:<APP_PORT>/faucet/ \
+  http://<YOUR PUBLIC IP>:<APP_PORT>/faucet/ \
   -H 'content-type: application/json' \
   -d '{
 	"key": "<PUBLIC KEY>",
