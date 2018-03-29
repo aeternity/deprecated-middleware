@@ -23,6 +23,28 @@ GITHUB_OAUTH_CLIENT_SECRET=<YOUR GIRHUB OAUTH CLIENT SECRET>
 GITHUB_OAUTH_CLIENT_ID=<YOUR GIRHUB OAUTH CLIENT ID>
 ```
 
+### Epoch configuration
+
+The repository contains an Epoch configuration file which has to be edited in order to make the node inside the docker network sync with the testnet:
+
+In `docker/epoch/epoch_config.yaml` change
+```
+...
+http:
+    external:
+        peer_address: http://epoch:3013/
+...
+
+```
+
+to 
+```
+http:
+    external:
+        peer_address: <YOUR_PUBLIC_IP_AND_PORT>/
+```
+
+
 ### Start the application
 
 ```
