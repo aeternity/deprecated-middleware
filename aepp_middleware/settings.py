@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import sys
+
+from corsheaders.defaults import default_headers
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost'] + os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['localhost', 'web'] + os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 
@@ -39,14 +42,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
 
+    'corsheaders',
     'rest_framework',
-    'faucet',
     'constance',
+
+    'faucet',
+    'aepp_auth',
+    'epoch_extra',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -147,3 +155,34 @@ CONSTANCE_REDIS_CONNECTION = {
 EPOCH_HOST = os.getenv('EPOCH_HOST', 'epoch')
 EPOCH_KEYS = os.getenv('EPOCH_KEYS_DIR')
 EPOCH_PASSWORD = os.getenv('EPOCH_PASSWORD')
+
+GITHUB_OAUTH_CLIENT_ID = os.getenv('GITHUB_OAUTH_CLIENT_ID')
+GITHUB_OAUTH_CLIENT_SECRET = os.getenv('GITHUB_OAUTH_CLIENT_SECRET')
+
+AUTH_USER_MODEL = 'aepp_auth.AeternityUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'aepp_auth.backends.GithubBackend'
+    )
+}
+
+CORS_ORIGIN_WHITELIST = [
+    'localhost:8080',
+] + os.getenv('CORS_ORIGIN_WHITELIST', '').split(',')
+
+CORS_ALLOW_HEADERS = default_headers + (
+    'x-gh-token',
+    'authorization'
+)
+
+APPEND_SLASH = True
+
+CELERY_BROKER_URL = 'amqp://{user}:{password}@{host}:5672/{vhost}'.format(
+    user=os.environ.get('RABBITMQ_USER', 'guest'),
+    password=os.environ.get('RABBITMQ_PASSWORD', 'guest'),
+    host=os.environ.get('RABBITMQ_HOST', 'localhost'),
+    vhost=os.environ.get('RABBITMQ_VHOST', '/'),
+)
