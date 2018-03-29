@@ -66,4 +66,7 @@ curl -X POST \
 }'
 ```
 
+## License
+
+ISC
 
